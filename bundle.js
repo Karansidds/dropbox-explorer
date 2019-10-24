@@ -1,7 +1,7 @@
 (function(){function r(e,n,t){function o(i,f){if(!n[i]){if(!e[i]){var c="function"==typeof require&&require;if(!f&&c)return c(i,!0);if(u)return u(i,!0);var a=new Error("Cannot find module '"+i+"'");throw a.code="MODULE_NOT_FOUND",a}var p=n[i]={exports:{}};e[i][0].call(p.exports,function(r){var n=e[i][1][r];return o(n||r)},p,p.exports,r,e,n,t)}return n[i].exports}for(var u="function"==typeof require&&require,i=0;i<t.length;i++)o(t[i]);return o}return r})()({1:[function(require,module,exports){
 var Dropbox = require('dropbox').Dropbox;
 var dbx = new Dropbox({
-  accessToken: 'tnX1IOQSLaAAAAAAAAAAR7r7kTVOBToZ4AieoxcQjVpRQYCehLwlSOwuisGLXk3U',
+  accessToken: 'tnX1IOQSLaAAAAAAAAAASRQ10ZJjgtHjDPF-PaMaq56MQl4CBEKn0VWpIEfNKmTQ',
   fetch
 });
 dbx
@@ -14,16 +14,27 @@ dbx
 const fileLogo = document.querySelector('.file-logo');
 const fileListElem = document.querySelector('.js-file-list');
 const loadingElem = document.querySelector('.js-loading');
+const createFolderForm = document.querySelector('.js-create-folder__form');
+const createFolderInput = document.querySelector('.js-create-folder__input');
 const rootPathForm = document.querySelector('.js-root-path__form');
 const rootPathInput = document.querySelector('.js-root-path__input');
+const previousBtn = document.querySelector('.previous-btn');
 const organizeBtn = document.querySelector('.js-organize-btn');
+const createFolderBtn = document.querySelector('.js-create-btn');
 
 
 fileLogo.addEventListener('click', () => {
   state.rootPath = '';
   state.files = [];
   rootPathInput.value = "";
+  previousBtn.disabled = true;
   init();
+});
+
+createFolderForm.addEventListener('submit', e => {
+  e.preventDefault();
+  let folderName = createFolderInput.value;
+  createFolder(folderName);
 });
 
 rootPathForm.addEventListener('submit', e => {
@@ -32,6 +43,13 @@ rootPathForm.addEventListener('submit', e => {
     rootPathInput.value === '/' ? '' : rootPathInput.value.toLowerCase();
   reset();
 });
+
+previousBtn.addEventListener('click', () => {
+  state.rootPath = state.rootPath.replace(state.rootPath.substring(state.rootPath.lastIndexOf('/' + 1)), '');
+  rootPathInput.value = rootPathInput.value.replace(rootPathInput.value.substring(rootPathInput.value.lastIndexOf('/' + 1)), '');
+  reset();
+ });
+
 
 organizeBtn.addEventListener('click', async e => {
   const originalMsg = e.target.innerHTML;
@@ -44,6 +62,7 @@ organizeBtn.addEventListener('click', async e => {
 });
 
 fileListElem.addEventListener('click', e => {
+  previousBtn.disabled = false;
   state.rootPath += '/' + e.target.innerText;
   rootPathInput.value += '/' + e.target.innerText;
   reset();
@@ -174,6 +193,16 @@ const moveFilesToDatedFolders = async () => {
       console.log(res);
     } while (res['.tag'] === 'in_progress');
   }
+};
+
+const createFolder = async folderName => {
+  const res = await dbx.filesCreateFolder({
+    path: `/${folderName}`
+  }).map(file => ({
+    tag: 'folder'
+  }));
+  console.log()
+
 };
 
 init();

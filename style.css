@@ -120,6 +120,20 @@ ul {
   margin: 5px auto;
 }
 
+.text-center {
+  text-align: center;
+}
+
+.d-inline {
+  display: inline;
+  margin: 0 10px;
+}
+
+.previous-btn {
+  position: absolute;
+  left: 200px;
+}
+
 .dbx-btn:hover:not(:disabled) {
   background: var(--blue);
   color: white;
